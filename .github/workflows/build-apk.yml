@@ -1,0 +1,49 @@
+name: Build AutoForge Mobile APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Projekt laden
+        uses: actions/checkout@v4
+
+      - name: Java 17 einrichten
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Gradle einrichten
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "9.6.0"
+
+      - name: Android SDK einrichten
+        uses: android-actions/setup-android@v4
+
+      - name: Android API 36 installieren
+        run: |
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools"
+
+      - name: AutoForge entpacken
+        run: |
+          mkdir AutoForgeBuild
+          unzip -q AutoForge_Source_v0.4.2.zip -d AutoForgeBuild
+          find AutoForgeBuild -maxdepth 3 -type f
+
+      - name: APK bauen
+        run: |
+          cd AutoForgeBuild
+          gradle --no-daemon --stacktrace :app:assembleDebug
+
+      - name: APK bereitstellen
+        uses: actions/upload-artifact@v4
+        with:
+          name: AutoForge-Mobile-v0.4.2-APK
+          path: AutoForgeBuild/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
