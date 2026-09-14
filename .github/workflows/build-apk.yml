@@ -2,13 +2,12 @@ name: Build AutoForge Mobile APK
 
 on:
   workflow_dispatch:
-
   push:
     branches:
       - main
     paths:
-      - "AutoForge_Source_v*.zip"
-      - ".github/workflows/build-apk.yml"
+      - 'AutoForge_Source_v*.zip'
+      - '.github/workflows/build-apk.yml'
 
 jobs:
   build-apk:
@@ -18,16 +17,16 @@ jobs:
       - name: Projekt laden
         uses: actions/checkout@v4
 
-    - name: Java 21 einrichten
-  uses: actions/setup-java@v5
-  with:
-    distribution: temurin
-    java-version: "21"
+      - name: Java 21 einrichten
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
 
       - name: Gradle einrichten
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: "9.6.0"
+          gradle-version: '9.6.0'
 
       - name: Android SDK einrichten
         uses: android-actions/setup-android@v4
@@ -35,19 +34,16 @@ jobs:
       - name: Android API 36 installieren
         run: |
           yes | sdkmanager --licenses > /dev/null || true
-          sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools"
+          sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'platform-tools'
 
       - name: Neueste AutoForge-Version auswählen
         shell: bash
         run: |
-          ZIP=$(find . -maxdepth 1 -type f -name 'AutoForge_Source_v*.zip' \
-            -printf '%f\n' | sort -V | tail -n 1)
-
+          ZIP=$(find . -maxdepth 1 -type f -name 'AutoForge_Source_v*.zip' -printf '%f\n' | sort -V | tail -n 1)
           if [ -z "$ZIP" ]; then
-            echo "Keine AutoForge-Source-ZIP gefunden."
+            echo 'Keine AutoForge-Source-ZIP gefunden.'
             exit 1
           fi
-
           echo "Verwendete Version: $ZIP"
           echo "SOURCE_ZIP=$ZIP" >> "$GITHUB_ENV"
 
@@ -56,9 +52,7 @@ jobs:
           rm -rf AutoForgeBuild
           mkdir AutoForgeBuild
           unzip -q "$SOURCE_ZIP" -d AutoForgeBuild
-
-          echo "Baue:"
-          echo "$SOURCE_ZIP"
+          echo "Baue: $SOURCE_ZIP"
 
       - name: APK bauen
         run: |
