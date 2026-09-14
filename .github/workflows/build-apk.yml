@@ -3,6 +3,13 @@ name: Build AutoForge Mobile APK
 on:
   workflow_dispatch:
 
+  push:
+    branches:
+      - main
+    paths:
+      - "AutoForge_Source_v*.zip"
+      - ".github/workflows/build-apk.yml"
+
 jobs:
   build-apk:
     runs-on: ubuntu-latest
@@ -30,11 +37,28 @@ jobs:
           yes | sdkmanager --licenses > /dev/null || true
           sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools"
 
+      - name: Neueste AutoForge-Version auswählen
+        shell: bash
+        run: |
+          ZIP=$(find . -maxdepth 1 -type f -name 'AutoForge_Source_v*.zip' \
+            -printf '%f\n' | sort -V | tail -n 1)
+
+          if [ -z "$ZIP" ]; then
+            echo "Keine AutoForge-Source-ZIP gefunden."
+            exit 1
+          fi
+
+          echo "Verwendete Version: $ZIP"
+          echo "SOURCE_ZIP=$ZIP" >> "$GITHUB_ENV"
+
       - name: AutoForge entpacken
         run: |
+          rm -rf AutoForgeBuild
           mkdir AutoForgeBuild
-          unzip -q AutoForge_Source_v0.4.2.zip -d AutoForgeBuild
-          find AutoForgeBuild -maxdepth 3 -type f
+          unzip -q "$SOURCE_ZIP" -d AutoForgeBuild
+
+          echo "Baue:"
+          echo "$SOURCE_ZIP"
 
       - name: APK bauen
         run: |
@@ -44,6 +68,6 @@ jobs:
       - name: APK bereitstellen
         uses: actions/upload-artifact@v4
         with:
-          name: AutoForge-Mobile-v0.4.2-APK
+          name: AutoForge-Mobile-APK
           path: AutoForgeBuild/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
