@@ -28,8 +28,10 @@ jobs:
         with:
           gradle-version: '9.6.0'
 
-      - name: Android SDK einrichten
-        uses: android-actions/setup-android@v4
+   - name: Android SDK einrichten
+  uses: android-actions/setup-android@v4
+  with:
+    packages: ''
 
       - name: Android API 36 installieren
         run: |
