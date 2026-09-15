@@ -1,6 +1,6 @@
-name: Build AutoForge Mobile APK
+name: Build AutoForge Signed APK
 
-on:
+'on':
   workflow_dispatch:
   push:
     branches:
@@ -28,10 +28,10 @@ jobs:
         with:
           gradle-version: '9.6.0'
 
-   - name: Android SDK einrichten
-  uses: android-actions/setup-android@v4
-  with:
-    packages: ''
+      - name: Android SDK einrichten
+        uses: android-actions/setup-android@v4
+        with:
+          packages: ''
 
       - name: Android API 36 installieren
         run: |
@@ -56,14 +56,38 @@ jobs:
           unzip -q "$SOURCE_ZIP" -d AutoForgeBuild
           echo "Baue: $SOURCE_ZIP"
 
-      - name: APK bauen
+      - name: Signierschlüssel prüfen und laden
+        env:
+          SIGNING_KEY: ${{ secrets.AUTOFORGE_SIGNING_KEY }}
+          SIGNING_PASSWORD: ${{ secrets.AUTOFORGE_SIGNING_PASSWORD }}
+        run: |
+          if [ -z "$SIGNING_KEY" ] || [ -z "$SIGNING_PASSWORD" ]; then
+            echo 'Fehlende GitHub Secrets: AUTOFORGE_SIGNING_KEY / AUTOFORGE_SIGNING_PASSWORD'
+            exit 1
+          fi
+          echo "$SIGNING_KEY" | base64 --decode > "$RUNNER_TEMP/autoforge-release.jks"
+          keytool -list -keystore "$RUNNER_TEMP/autoforge-release.jks" -storepass "$SIGNING_PASSWORD" -alias autoforge >/dev/null
+          echo 'Dauerhafter AutoForge-Signierschlüssel geladen.'
+
+      - name: Signierte Release-APK bauen
+        env:
+          AUTOFORGE_KEYSTORE_PATH: ${{ runner.temp }}/autoforge-release.jks
+          AUTOFORGE_STORE_PASSWORD: ${{ secrets.AUTOFORGE_SIGNING_PASSWORD }}
+          AUTOFORGE_KEY_ALIAS: autoforge
+          AUTOFORGE_KEY_PASSWORD: ${{ secrets.AUTOFORGE_SIGNING_PASSWORD }}
         run: |
           cd AutoForgeBuild
-          gradle --no-daemon --stacktrace :app:assembleDebug
+          gradle --no-daemon --stacktrace :app:assembleRelease
 
-      - name: APK bereitstellen
+      - name: APK-Prüfsumme
+        run: |
+          sha256sum AutoForgeBuild/app/build/outputs/apk/release/app-release.apk | tee AutoForgeBuild/app-release.sha256
+
+      - name: Signierte APK bereitstellen
         uses: actions/upload-artifact@v4
         with:
-          name: AutoForge-Mobile-APK
-          path: AutoForgeBuild/app/build/outputs/apk/debug/app-debug.apk
+          name: AutoForge-Mobile-SIGNED-APK
+          path: |
+            AutoForgeBuild/app/build/outputs/apk/release/app-release.apk
+            AutoForgeBuild/app-release.sha256
           if-no-files-found: error
