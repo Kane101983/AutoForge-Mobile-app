@@ -15,6 +15,6 @@ var nonce="0123456789abcdef0123456789abcdef";
 await client.SendAsync(Encoding.UTF8.GetBytes("{\"service\":\"autoforge-discovery\",\"v\":1,\"nonce\":\""+nonce+"\"}"),endpoint);
 var response=await client.ReceiveAsync(new CancellationTokenSource(3000).Token);
 var answer=JsonNode.Parse(Encoding.UTF8.GetString(response.Buffer))!.AsObject();
-if(answer.Count!=5||answer["nonce"]?.ToString()!=nonce||answer["version"]?.ToString()!="0.6.2"||answer["service"]?.ToString()!="autoforge-discovery")throw new Exception("Discovery-Antwort stimmt nicht");
+if(answer.Count!=5||answer["nonce"]?.ToString()!=nonce||answer["version"]?.ToString()!="0.6.3"||answer["service"]?.ToString()!="autoforge-discovery")throw new Exception("Discovery-Antwort stimmt nicht");
 Console.WriteLine("UDP Discovery bestanden: ungueltige Anfrage ignoriert, passende Nonce beantwortet, keine Codes/Schluessel/Befehle ausgegeben.");
 
