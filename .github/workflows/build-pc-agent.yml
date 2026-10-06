@@ -17,6 +17,12 @@ jobs:
       - name: Quelle laden
         shell: pwsh
         run: Expand-Archive -LiteralPath AutoForge_PC_Source_0.6.2.zip -DestinationPath PCBuild
+      - name: Installationsskript pruefen
+        shell: pwsh
+        run: |
+          $tokens=$null; $errors=$null
+          [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path PCBuild/installer/Install.ps1).Path,[ref]$tokens,[ref]$errors) | Out-Null
+          if ($errors.Count) { throw ($errors | Out-String) }
       - name: Windows-Agent bauen
         shell: pwsh
         run: dotnet publish PCBuild/apps/pc-agent/AutoForge.Desktop/AutoForge.Desktop.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o PCSetup/agent
