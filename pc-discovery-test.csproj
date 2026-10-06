@@ -1,0 +1,2 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><EnableDefaultCompileItems>false</EnableDefaultCompileItems></PropertyGroup><ItemGroup><Compile Include="pc-discovery-test.cs"/><Compile Include="PCBuild/apps/pc-agent/AutoForge.Desktop/DiscoveryService.cs"/></ItemGroup></Project>
+

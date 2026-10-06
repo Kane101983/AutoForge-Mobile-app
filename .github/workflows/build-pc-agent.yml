@@ -2,7 +2,7 @@ name: Build AutoForge PC Setup
 'on':
   push:
     branches: [main]
-    paths: ['AutoForge_PC_Source_0.6.1.zip', '.github/workflows/build-pc-agent.yml']
+    paths: ['AutoForge_PC_Source_0.6.2.zip', '.github/workflows/build-pc-agent.yml']
   workflow_dispatch:
 permissions:
   contents: write
@@ -16,10 +16,13 @@ jobs:
           dotnet-version: '10.0.x'
       - name: Quelle laden
         shell: pwsh
-        run: Expand-Archive -LiteralPath AutoForge_PC_Source_0.6.1.zip -DestinationPath PCBuild
+        run: Expand-Archive -LiteralPath AutoForge_PC_Source_0.6.2.zip -DestinationPath PCBuild
       - name: Windows-Agent bauen
         shell: pwsh
         run: dotnet publish PCBuild/apps/pc-agent/AutoForge.Desktop/AutoForge.Desktop.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o PCSetup/agent
+      - name: Heimnetzerkennung pruefen
+        shell: pwsh
+        run: dotnet run --project pc-discovery-test.csproj -c Release
       - name: Einrichtung und Pruefsummen verpacken
         shell: pwsh
         run: |
@@ -40,8 +43,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release view pc-agent-0.6.1 --repo $env:GITHUB_REPOSITORY
-          if ($LASTEXITCODE -ne 0) { gh release create pc-agent-0.6.1 --repo $env:GITHUB_REPOSITORY --title 'AutoForge PC-Einrichtung 0.6.1' --notes 'Windows 10/11 x64. ZIP entpacken und AutoForge installieren.cmd am PC oeffnen. Agent ohne lokale KI-Modelle. Projektbereich bleibt G:\gpt\AutoForge. Einmalige Zustimmung am PC erforderlich.' }
-          gh release upload pc-agent-0.6.1 AutoForge-PC-Setup.zip AutoForge-PC-Setup.sha256 --repo $env:GITHUB_REPOSITORY --clobber
+          gh release view pc-agent-0.6.2 --repo $env:GITHUB_REPOSITORY
+          if ($LASTEXITCODE -ne 0) { gh release create pc-agent-0.6.2 --repo $env:GITHUB_REPOSITORY --title 'AutoForge PC-Einrichtung 0.6.2' --notes 'Windows 10/11 x64. ZIP entpacken und AutoForge installieren.cmd am PC oeffnen. Agent ohne lokale KI-Modelle. Projektbereich bleibt G:\gpt\AutoForge. Einmalige Zustimmung am PC erforderlich.' }
+          gh release upload pc-agent-0.6.2 AutoForge-PC-Setup.zip AutoForge-PC-Setup.sha256 --repo $env:GITHUB_REPOSITORY --clobber
           if ($LASTEXITCODE -ne 0) { throw 'PC-Download konnte nicht bereitgestellt werden' }
 
