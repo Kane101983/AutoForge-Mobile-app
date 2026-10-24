@@ -5,6 +5,7 @@ name: Build AutoForge Signed APK
   push:
     branches:
       - main
+      - codex/mobile-task-0153
     paths:
       - 'AutoForge_Source_v*.zip'
       - '.github/workflows/build-apk.yml'
