@@ -5,8 +5,10 @@ name: Build AutoForge Signed APK
   push:
     branches:
       - main
+      - codex/training-view-01511
     paths:
       - 'AutoForge_Source_v*.zip'
+      - 'AutoForge_Source_v*.zip.b64'
       - '.github/workflows/build-apk.yml'
 
 jobs:
@@ -38,6 +40,10 @@ jobs:
           yes | sdkmanager --licenses > /dev/null || true
           sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'platform-tools'
 
+      - name: Texttransport des geprüften Quellarchivs dekodieren
+        run: |
+          cat build-source/01511/*.b64 | base64 --decode > AutoForge_Source_v0.15.11_Remote.zip
+          echo '2d34ff83f737222760956705d4f931fb8323ebb3cbf6d3072cf2895ea3d4fe2d  AutoForge_Source_v0.15.11_Remote.zip' | sha256sum --check
       - name: Neueste AutoForge-Version auswählen
         shell: bash
         run: |
