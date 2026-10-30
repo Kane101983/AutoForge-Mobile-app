@@ -5,7 +5,7 @@ name: Build AutoForge Signed APK
   push:
     branches:
       - main
-      - codex/mobile-devices-01510
+      - codex/training-view-01511
     paths:
       - 'AutoForge_Source_v*.zip'
       - 'AutoForge_Source_v*.zip.b64'
@@ -42,8 +42,8 @@ jobs:
 
       - name: Texttransport des geprüften Quellarchivs dekodieren
         run: |
-          base64 --decode AutoForge_Source_v0.15.10_Remote.zip.b64 > AutoForge_Source_v0.15.10_Remote.zip
-          echo '1a3c12826e0fbe6a5237c32d0b7c62618507d8f7d7c962b95865a804c3e139ce  AutoForge_Source_v0.15.10_Remote.zip' | sha256sum --check
+          base64 --decode AutoForge_Source_v0.15.11_Remote.zip.b64 > AutoForge_Source_v0.15.11_Remote.zip
+          echo '8e748a8f1eaeb3816755f1218c988c198d6298f08018a9d9bb7193f6664eb86f  AutoForge_Source_v0.15.11_Remote.zip' | sha256sum --check
       - name: Neueste AutoForge-Version auswählen
         shell: bash
         run: |
